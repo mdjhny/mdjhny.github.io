@@ -2,6 +2,7 @@
 title: Python 100题第三部分（节选自41-60题）
 date: 2013-02-17 18:10:31
 tags: [python, 算法]
+categories: python
 ---
 
 ## 第51-55题

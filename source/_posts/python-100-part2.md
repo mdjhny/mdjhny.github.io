@@ -2,6 +2,7 @@
 title: Python 100题第二部分（节选自21-40题）
 date: 2013-02-16 13:22:22
 tags: [python, 算法]
+categories: python
 ---
 
 ## 第29题

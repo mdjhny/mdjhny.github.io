@@ -2,6 +2,7 @@
 title: Python 100题第四部分（节选自61-100题）
 date: 2013-02-18 20:33:09
 tags: [python, 算法]
+categories: python
 ---
 
 ## 第68题

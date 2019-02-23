@@ -2,6 +2,7 @@
 title: Python 100题第一部分（节选自1-20题）
 date: 2013-02-15 10:00:25
 tags: [python, 算法]
+categories: python
 ---
 
 ## 第1题

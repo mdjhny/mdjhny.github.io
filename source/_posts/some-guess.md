@@ -2,6 +2,7 @@
 title: 一些猜测
 date: 2016-03-23 10:39:58
 tags: [trivial, economy]
+categories: python
 ---
 
 简单猜测一下2016年即将发生的一些事情：
