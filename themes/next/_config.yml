@@ -143,6 +143,7 @@ menu:
   tags: /tags/ || tags
   categories: /categories/ || th
   archives: /archives/ || archive
+  reading: /reading/ || book
   #schedule: /schedule/ || calendar
   #sitemap: /sitemap.xml || sitemap
   #commonweal: /404/ || heartbeat

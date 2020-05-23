@@ -1,6 +1,9 @@
 ---
-title: about
+title: 关于我
 date: 2016-03-22 11:06:29
 ---
 
-coding@腾讯。
+腾讯 PCG 后台开发，Golang/C++ 。
+
+
+联系我： 谷歌邮箱 yfx8899 。

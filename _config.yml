@@ -4,9 +4,9 @@
 
 # Site
 title: mdjhny 的博客
-subtitle: 什么都讲一点
+subtitle: 专注互联网后台高可用架构
 description:
-keywords: 机器学习
+keywords: C++, Golang, 架构, 后台开发, 高性能, 高可用, 算法
 author: mdjhny
 language: zh-CN
 timezone: Asia/Shanghai
@@ -43,7 +43,7 @@ highlight:
   line_number: true
   auto_detect: false
   tab_replace:
-  
+
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
 # per_page: Posts displayed per page. (0 = disable pagination)
@@ -52,7 +52,7 @@ index_generator:
   path: ''
   per_page: 10
   order_by: -date
-  
+
 # Category & Tag
 default_category: uncategorized
 category_map:
