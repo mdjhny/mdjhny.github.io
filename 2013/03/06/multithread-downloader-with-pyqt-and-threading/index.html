@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Python提供了丰富的模块，为我们编写多线程应用程序提供了很好的支持。但是这方面的文档并不多，经过一些摸索，我写了一个简单的多线程下载的例子，并做了详细的注释，以后创建多线程程序时可以拿来作为参考。">
+<meta name="keywords" content="python,pyqt,多线程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyQt4结合threading多线程下载类的例子">
+<meta property="og:url" content="http://mdjhny.github.io/2013/03/06/multithread-downloader-with-pyqt-and-threading/index.html">
+<meta property="og:site_name" content="mdjhny 的博客">
+<meta property="og:description" content="Python提供了丰富的模块，为我们编写多线程应用程序提供了很好的支持。但是这方面的文档并不多，经过一些摸索，我写了一个简单的多线程下载的例子，并做了详细的注释，以后创建多线程程序时可以拿来作为参考。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-25T07:12:16.167Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PyQt4结合threading多线程下载类的例子">
+<meta name="twitter:description" content="Python提供了丰富的模块，为我们编写多线程应用程序提供了很好的支持。但是这方面的文档并不多，经过一些摸索，我写了一个简单的多线程下载的例子，并做了详细的注释，以后创建多线程程序时可以拿来作为参考。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://mdjhny.github.io/2013/03/06/multithread-downloader-with-pyqt-and-threading/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PyQt4结合threading多线程下载类的例子 | mdjhny 的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mdjhny 的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">专注互联网后台高可用架构</h1>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-reading">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/reading/" rel="section"><i class="menu-item-icon fa fa-fw fa-book"></i> <br>阅读</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://mdjhny.github.io/2013/03/06/multithread-downloader-with-pyqt-and-threading/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mdjhny">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mdjhny 的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">PyQt4结合threading多线程下载类的例子
+
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2013-03-06 14:00:14" itemprop="dateCreated datePublished" datetime="2013-03-06T14:00:14+08:00">2013-03-06</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-05-25 15:12:16" itemprop="dateModified" datetime="2020-05-25T15:12:16+08:00">2020-05-25</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Python提供了丰富的模块，为我们编写多线程应用程序提供了很好的支持。但是这方面的文档并不多，经过一些摸索，我写了一个简单的多线程下载的例子，并做了详细的注释，以后创建多线程程序时可以拿来作为参考。<br><a id="more"></a></p>
+<h2 id="几个需要注意的点"><a href="#几个需要注意的点" class="headerlink" title="几个需要注意的点"></a>几个需要注意的点</h2><ol>
+<li>子线程不能用<code>join</code>方法，否则会造成阻塞，导致GUI主程序主循环无法启动，界面无法出来；</li>
+<li>子线程读取队列时要加锁，保证线程安全性</li>
+<li>子线程需要使用<code>setDeamon</code>函数显式声明，这样GUI界面退出后子线程也会退出，或者可以使用<code>thread.daemon = True</code>来设置</li>
+</ol>
+<h2 id="一个教训"><a href="#一个教训" class="headerlink" title="一个教训"></a>一个教训</h2><p><code>urllib2</code>的<code>urlopen</code>方法可以设置一个超时时间，而<code>urllib</code>不可以，我最开始使用了urllib，这样会引发一个<code>TypeError</code>错误，而我在捕获异常时并没有做仔细区分，导致TypeError被人为忽略了，所以一定要多看文档，熟记各个模块的用法和参数，一些细小的差别尤其要注意。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 参数和退出：sys.argv和sys.exit()，常规引入</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="comment"># 处理网络连接</span></span><br><span class="line"><span class="keyword">import</span> urllib2</span><br><span class="line"><span class="comment"># 多线程类</span></span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> Thread, RLock</span><br><span class="line"><span class="comment"># 任务队列，方便各子线程共用</span></span><br><span class="line"><span class="keyword">from</span> Queue <span class="keyword">import</span> Queue</span><br><span class="line"><span class="comment"># 图形界面元素</span></span><br><span class="line"><span class="keyword">from</span> PyQt4.QtGui <span class="keyword">import</span> QApplication, QTreeWidget, QTreeWidgetItem</span><br><span class="line"></span><br><span class="line"><span class="comment"># 要处理的网址</span></span><br><span class="line">URLS = [</span><br><span class="line">    <span class="string">'http://baidu.com'</span>, <span class="string">'http://renren.com'</span>, <span class="string">'http://sina.com'</span>,</span><br><span class="line">    <span class="string">'http://weibo.com'</span>, <span class="string">'http://youku.com'</span>, <span class="string">'http://csdn.com'</span>,</span><br><span class="line">    <span class="string">'http://twitter.com'</span>, <span class="string">'http://youtube.com'</span>, <span class="string">'http://facebook.com'</span>,</span><br><span class="line">    <span class="string">'http://github.com'</span>, <span class="string">'http://google.com'</span>, <span class="string">'http://tumblr.com'</span></span><br><span class="line">]</span><br><span class="line"><span class="comment"># 开启的线程数</span></span><br><span class="line">WORKER_NUM = <span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DownLoader</span><span class="params">(QTreeWidget)</span>:</span></span><br><span class="line">    <span class="string">'''下载器，它读入一个网址列表，并使用多线程分别下载对应的网址'''</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, urls=URLS, parent=None)</span>:</span></span><br><span class="line">        super(DownLoader, self).__init__(parent)</span><br><span class="line">        <span class="comment"># 传入网址列表</span></span><br><span class="line">        self.urls = urls</span><br><span class="line">        <span class="comment"># 将网址压入队列</span></span><br><span class="line">        self.queue = Queue()</span><br><span class="line">        <span class="keyword">for</span> url <span class="keyword">in</span> self.urls:</span><br><span class="line">            self.queue.put(url)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 设置界面大小</span></span><br><span class="line">        self.resize(<span class="number">400</span>, <span class="number">400</span>)</span><br><span class="line">        self.setWindowTitle(<span class="string">u'下载器'</span>)</span><br><span class="line">        <span class="comment"># 设置树为两列</span></span><br><span class="line">        self.setColumnCount(<span class="number">2</span>)</span><br><span class="line">        <span class="comment"># 将第一列设置得宽一些</span></span><br><span class="line">        self.setColumnWidth(<span class="number">0</span>, <span class="number">250</span>)</span><br><span class="line">        <span class="comment"># 设置表头</span></span><br><span class="line">        self.setHeaderLabels([<span class="string">u'网址'</span>, <span class="string">u'状态'</span>])</span><br><span class="line"></span><br><span class="line">        self.items = []</span><br><span class="line">        <span class="keyword">for</span> url <span class="keyword">in</span> self.urls:</span><br><span class="line">            <span class="comment"># 建立树的一个子元素</span></span><br><span class="line">            item = QTreeWidgetItem()</span><br><span class="line">            <span class="comment"># 将网址填充进第一列</span></span><br><span class="line">            item.setText(<span class="number">0</span>, url)</span><br><span class="line">            <span class="comment"># 元素列表中存进这个元素</span></span><br><span class="line">            self.items.append(item)</span><br><span class="line">        <span class="comment"># 将元素列表中的元素全部加到树中</span></span><br><span class="line">        self.addTopLevelItems(self.items)</span><br><span class="line">        <span class="comment"># 创建一个可重入线程锁，保证线程安全性</span></span><br><span class="line">        self.lock = RLock()</span><br><span class="line">        <span class="comment"># 调用线程函数启动线程</span></span><br><span class="line">        self.start_workers()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start_workers</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 维护一个线程池，并启动各个线程</span></span><br><span class="line">        pool = []</span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> range(WORKER_NUM):</span><br><span class="line">            <span class="comment"># 线程池中加入一个线程</span></span><br><span class="line">            pool.append(Thread(target=self.download))</span><br><span class="line">            <span class="comment"># 确保主进程结束后子线程也退出</span></span><br><span class="line">            pool[<span class="number">-1</span>].setDaemon(<span class="keyword">True</span>)</span><br><span class="line">            pool[<span class="number">-1</span>].start()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">download</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 从网址队列中取出一个网址，并获得它的序号</span></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">not</span> self.queue.empty():</span><br><span class="line">            <span class="comment"># 获得线程锁，防止其它线程同时对队列进行操作</span></span><br><span class="line">            self.lock.acquire()</span><br><span class="line">            url = self.queue.get()</span><br><span class="line">            <span class="comment"># 释放锁，让其它线程可以从队列中读取网址</span></span><br><span class="line">            self.lock.release()</span><br><span class="line">            index = self.urls.index(url)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="comment"># 这里只是打开网页，并没有下载，可以改为自己的函数</span></span><br><span class="line">                <span class="comment"># 连接超时时间设置为10秒，防止无谓的尝试，你懂的</span></span><br><span class="line">                urllib2.urlopen(url, timeout=<span class="number">10</span>)</span><br><span class="line">                state = <span class="string">'1'</span></span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                state = <span class="string">'0'</span></span><br><span class="line">            <span class="comment"># 将第二列的文字改为下载结果</span></span><br><span class="line">            self.items[index].setText(<span class="number">1</span>, state)</span><br><span class="line">            <span class="comment"># 告诉队列任务结束，准备取出下一个网址</span></span><br><span class="line">            self.queue.task_done()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    app = QApplication(sys.argv)</span><br><span class="line">    window = DownLoader()</span><br><span class="line">    window.show()</span><br><span class="line">    sys.exit(app.exec_())</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>这个代码源自百度贴吧上的一个问题，平时很少上百度贴吧，昨天进去逛就一下子碰到了，也算是机缘巧合吧。不过我没有百度帐号，帮不了他，只好写在我博客这里了。实际上写代码的动力不一定来自于自己的某种需求，更多的来自于兴趣和爱好，不仅自己增长了知识，同时还能帮助到别人，这也就再好不过了^_^。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>mdjhny</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="http://mdjhny.github.io/2013/03/06/multithread-downloader-with-pyqt-and-threading/" title="PyQt4结合threading多线程下载类的例子">http://mdjhny.github.io/2013/03/06/multithread-downloader-with-pyqt-and-threading/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+            <a href="/tags/pyqt/" rel="tag"># pyqt</a>
+          
+            <a href="/tags/多线程/" rel="tag"># 多线程</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/02/18/python-100-part4/" rel="next" title="Python 100题第四部分（节选自61-100题）">
+                <i class="fa fa-chevron-left"></i> Python 100题第四部分（节选自61-100题）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/21/博客引擎切换为hexo/" rel="prev" title="博客引擎切换为hexo">
+                博客引擎切换为hexo <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="mdjhny">
+            
+              <p class="site-author-name" itemprop="name">mdjhny</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/mdjhny" title="GitHub &rarr; https://github.com/mdjhny" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://twitter.com/mdjhny" title="Twitter &rarr; https://twitter.com/mdjhny" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#几个需要注意的点"><span class="nav-number">1.</span> <span class="nav-text">几个需要注意的点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个教训"><span class="nav-number">2.</span> <span class="nav-text">一个教训</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码"><span class="nav-number">3.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2013 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mdjhny</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
